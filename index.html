@@ -1,51 +1,207 @@
-<!Doctype html>
-<html lang="en-us">
-    <head>
-        <meta charset="UTF-8">
-        <title>My First Page</title>
-    </head>
-    <body>
-    <h1>Class Assignment_Hockey</h1>
-    <img src="https://imgix.ranker.com/user_node_img/55/1088084/original/gordie-howe-hockey-players-photo-u9?w=650&q=50&fm=jpg&fit=crop&crop=faces" alt="toothless Gordie Howe" width="300" height="300"/>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+  <link rel="stylesheet" href="style.css">
+
+  <title>New York Times Article Search</title>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div id="headBox" class="jumbotron">
+      <img class="pic" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRnALaYCcBehqeLKf7jKke795RvUJYY31PkrCwYO3i1DPdwJPKJsg">
+      <h1 id="heading" class="display-4">New York Times Search</h1>
+    </div>
     <br>
-    <a target="_blank" href="https://www.nhl.com/rangers">NY Rangers Official Site</a>
+    <form id="formBox">
+      <div class="form-group">
+        <label id="search" for="SearchTerms">Search Terms:</label>
+        <input type="text" class="form-control" id="SearchTerms" aria-describedby="emailHelp" placeholder="Search Terms">                           
+      </div>
+
+      <div class="form-group">
+        <label id="records" for="NumRecords">Number of Records to Retrieve:</label>
+        <select class="custom-select" id="NumRecords">
+          <option selected value="1">One</option>
+          <option value="2">Two</option>
+          <option value="3">Three</option>
+          <option value="4">Four</option>
+          <option value="5">Five</option>
+          <option value="6">Six</option>
+          <option value="7">Seven</option>
+          <option value="8">Eight</option>
+          <option value="9">Nine</option>
+          <option value="10">Ten</option>
+        </select>
+      </div>
+
+      <div id="starY" class="form-group">
+        <label id="start" for="StartYear">Start Year(Optional):</label>
+        <input type="text" class="form-control" id="StartYear" aria-describedby="emailHelp" placeholder="Start Year">
+      </div>
+
+      <div id="endY" class="form-group">
+        <label id="end" for="EndYear">End Year(Optional):</label>
+        <input type="text" class="form-control" id="EndYear" placeholder="End Year">
+      </div>
+        <br>
+      <button type="button" class="btn btn-outline-primary" id="SearchBtn">Search</button>
+      <button type="button" class="btn btn-outline-secondary" id="ResetBtn">Clear Results</button>
+    </form>
+
     <br>
-    <strong><a href="https://www.nhl.com">nhl website</a></strong>
     <br>
-    <a href="">Hockey placeholder</a>
-    <br>
-    <h2>Animal table</h2>
-    <table style="width:50%">
-        <tr>
-        <th>Animal Class</th>
-        <th>Animal Name</th>
-        </tr>
-            <tr><td>Mammal</td>
-                <td>Dog</td>
-            </tr>
-            <tr>
-                <td>Mammal</td>
-                <td>Chimp</td>
-             <tr>
-                 <td>Reptile</td>
-                 <td>Snake</td>
-             </tr>
-             <tr>
-                 <td>Bird</td>
-                 <td>Humming Bird</td>
-             </tr>   
-            </tr>
+    <div>
+      <img class="pic2" src="https://appalachianlandslide.files.wordpress.com/2013/03/news.jpg">
+      <h6>Top Articles</h6>
+    </div>
+      <div class="row" id="articleTags">
     
-    </table>
-        <h3>My Top 5 Bands</h3>
-        <ul>
-            <li>Blink 182</li>
-            <li>Rise Against</li>
-            <li>The Menzingers</li>
-            <li>Taking Back Sunday</li>
-            <li>Highly Suspect</li>
+    
+      </div>
+  </div>
 
-        </ul>
 
-    </body>
+  
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  
+  <script type="text/javascript">
+
+    var searchTerms="";
+    var numRecords=0;
+    var startYear="";
+    var endYear="";
+    
+    function displayArticleTags() {
+
+      if ( checkParams() ) {
+
+        var url = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+        url += "?api-key=1c2fd9472d644771b63f1eff21ef8c4a";
+        url += "&q=" + searchTerms;
+        url += "&fq=source%3A(%22The%20New%20York%20Times%22)";
+
+        if ( startYear.length > 0 ) {
+          url += "&begin_date=" + startYear + "0101";
+        }
+
+        if ( endYear.length > 0 ) {
+          url += "&end_date=" + endYear + "1231";
+        }
+
+        $.ajax({  url: url,
+                  method: 'GET',
+        }).done(function(result) {
+console.log(result);
+
+          // build display here 
+          var loopMax = 0;
+          let response = result.response.docs;
+
+          if ( response.length > numRecords ) {
+            loopMax = numRecords;
+          } else {
+            loopMax = response.length;
+          }
+
+          if ( loopMax === 0 ) {
+            $("#articleTags").html("<h2><em>No results found.</em></h2>");
+          } else {
+
+            var newDiv;
+            var divHTML = "";
+console.log(loopMax);
+            for ( var i = 0; i < loopMax; i++ ) {
+/*  console.log(response[i].byline.original);
+  console.log(response[i].headline.main);
+  console.log(response[i].pub_date);
+  console.log(response[i].web_url);
+  console.log(response[i].section_name);
+  console.log(response.length); */
+console.log("i: " + i);
+
+              newDiv = $("<div>");
+            
+              divHTML = (i+1) + " - " + response[i].headline.main + "<br>";
+              divHTML += response[i].byline.original + "<br>";
+            
+              if ( response[i].section_name != undefined) {
+                divHTML += "Section: " + response[i].section_name + "<br>";
+              }
+
+              divHTML += response[i].pub_date + "<br>";
+              divHTML += "<a href='" + response[i].web_url + "' target='_blank'>";
+              divHTML += response[i].web_url + "</a>";
+
+console.log(divHTML);
+
+              newDiv.html(divHTML);
+              newDiv.addClass("articleStyle");
+              $("#articleTags").append(newDiv);
+            }
+          }
+        }).fail(function(err) {
+          throw err;
+        });
+
+      }
+
+    }
+
+    function checkParams() {
+
+      if ( numRecords<1 || numRecords>10 ) {
+        numRecords = 1;
+      }
+
+      if ( !startYear.match("^(19|20)[0-9][0-9]") ) {
+        startYear = "";
+      }
+
+      if ( !endYear.match("^(19|20)[0-9][0-9]") ) {
+        endYear = "";
+      }
+
+      return true;
+    }
+
+
+    $("select").change( function () {
+      numRecords=$("#NumRecords").val();
+    });
+
+    $("#SearchBtn").on("click", function() {
+
+      // get the input data and put it into our variables
+      searchTerms = $("#SearchTerms").val();
+      startYear = $("#StartYear").val();
+      endYear = $("#EndYear").val();
+
+      displayArticleTags();
+    });
+
+
+    $("#ResetBtn").on("click", function() {
+      searchTerms="";
+      numRecords=0;
+      startYear="";
+      endYear="";
+
+      $("#SearchTerms").val(searchTerms);
+      $("#NumRecords").val(numRecords);
+      $("#StartYear").val(startYear);
+      $("#EndYear").val(endYear);
+
+      $("#articleTags").empty();
+    });
+
+  </script>
+
+</body>
 </html>
